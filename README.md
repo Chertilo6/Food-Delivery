@@ -27,6 +27,7 @@
 | `src/app/(auth)/signup.tsx` | Регистрация |
 | `src/app/(auth)/forgot-password.tsx` | Забыли пароль |
 | `src/app/(auth)/verification.tsx` | Подтверждение (код, таймер, цифровая клавиатура) |
+| `src/app/location.tsx` | доступ к геопозиции |
 | `src/app/home.tsx` | заглушка главного экрана |
 
 Компоненты — `src/components`, цвета и шрифты — `src/theme`, иллюстрации (SVG) — `src/illustrations`.
