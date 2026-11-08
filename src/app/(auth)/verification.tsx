@@ -57,7 +57,7 @@ export default function VerificationScreen() {
       <Button
         title="Подтвердить"
         disabled={code.length < CODE_LENGTH}
-        onPress={() => router.replace('/home')}
+        onPress={() => router.replace('/location')}
       />
     </AuthScreen>
   );

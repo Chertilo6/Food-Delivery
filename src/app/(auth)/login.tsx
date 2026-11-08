@@ -47,7 +47,7 @@ export default function LoginScreen() {
         </Pressable>
       </View>
 
-      <Button title="Войти" onPress={() => router.replace('/home')} style={styles.button} />
+      <Button title="Войти" onPress={() => router.replace('/location')} style={styles.button} />
 
       <View style={styles.signUpRow}>
         <Text style={styles.gray}>Нет аккаунта? </Text>
