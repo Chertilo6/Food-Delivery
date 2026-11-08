@@ -1,19 +1,6 @@
 # Food-Delivery
 
-Мобильное приложение на Expo (React Native) + Expo Router. 10 экранов по макету, интерфейс на русском.
-
-## Запуск в Expo Go (по QR-коду)
-1. Установите **Expo Go** на телефон (App Store / Google Play).
-2. Откройте терминал **в папке, где лежит `package.json`** (папка `node_modules` уже установлена).
-3. Выполните:
-   ```bash
-   npx expo start
-   ```
-4. Отсканируйте QR-код: на Android — из приложения Expo Go, на iPhone — обычной камерой.
-5. Телефон и компьютер должны быть в **одной Wi-Fi сети**. Если QR не открывается (разные сети, VPN, фаервол):
-   ```bash
-   npx expo start --tunnel
-   ```
+Мобильное приложение на Expo (React Native) + Expo Router.
 
 ## Структура
 | Файл | Назначение |
