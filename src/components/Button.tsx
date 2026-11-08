@@ -1,5 +1,5 @@
-import React from 'react';
-import { Pressable, StyleSheet, Text, ViewStyle } from 'react-native';
+import React, { ReactNode } from 'react';
+import { Pressable, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { colors, fonts } from '../theme';
 
 type Props = {
@@ -7,9 +7,10 @@ type Props = {
   onPress: () => void;
   style?: ViewStyle;
   disabled?: boolean;
+  right?: ReactNode;
 };
 
-export default function Button({ title, onPress, style, disabled }: Props) {
+export default function Button({ title, onPress, style, disabled, right }: Props) {
   return (
     <Pressable
       accessibilityRole="button"
@@ -18,6 +19,7 @@ export default function Button({ title, onPress, style, disabled }: Props) {
       style={({ pressed }) => [styles.button, { opacity: disabled ? 0.5 : pressed ? 0.85 : 1 }, style]}
     >
       <Text style={styles.text}>{title.toUpperCase()}</Text>
+      {right ? <View style={styles.right}>{right}</View> : null}
     </Pressable>
   );
 }
@@ -31,4 +33,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   text: { ...fonts.bold, fontSize: 14, color: colors.white, letterSpacing: 0.4 },
+  right: { position: 'absolute', right: 16 },
 });
