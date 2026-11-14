@@ -54,3 +54,20 @@ export function CheckIcon({ color = '#FFFFFF', size = 40 }: IconProps) {
         </Svg>
     );
 }
+
+export function SearchIcon({ color = '#A0A5BA', size = 20 }: IconProps) {
+    return (
+        <Svg width={size} height={size} viewBox="0 0 24 24">
+            <Circle cx="11" cy="11" r="7" stroke={color} strokeWidth={2.2} fill="none" />
+            <Path {...base} d="m20 20-3.5-3.5" stroke={color} strokeWidth={2.2} />
+        </Svg>
+    );
+}
+
+export function CloseIcon({ color = '#FFFFFF', size = 12 }: IconProps) {
+    return (
+        <Svg width={size} height={size} viewBox="0 0 24 24">
+            <Path {...base} d="M6 6l12 12M18 6 6 18" stroke={color} strokeWidth={3} />
+        </Svg>
+    );
+}
