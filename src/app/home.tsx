@@ -5,12 +5,28 @@ import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fetchProducts, Product } from '../api/products';
 import Button from '../components/Button';
+import CategoryChips from '../components/CategoryChips';
 import CircleButton from '../components/CircleButton';
 import FilterSheet, { ALL_CATEGORIES, SortKey } from '../components/FilterSheet';
 import { CartIcon, FilterIcon } from '../components/icons';
+import Logo from '../components/Logo';
 import ProductCard from '../components/ProductCard';
+import PromoBanner from '../components/PromoBanner';
+import SearchField from '../components/SearchField';
 import { useCart } from '../context/CartContext';
 import { colors, fonts } from '../theme';
+
+function getGreeting() {
+  const hour = new Date().getHours();
+  if (hour < 6) return 'Доброй ночи';
+  if (hour < 12) return 'Доброе утро';
+  if (hour < 18) return 'Добрый день';
+  return 'Добрый вечер';
+}
+
+function normalize(text: string) {
+  return text.trim().toLowerCase().replace(/ё/g, 'е');
+}
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
@@ -22,6 +38,7 @@ export default function HomeScreen() {
   const [filterOpen, setFilterOpen] = useState(false);
   const [sort, setSort] = useState<SortKey>('default');
   const [category, setCategory] = useState(ALL_CATEGORIES);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     let cancelled = false;
@@ -46,13 +63,17 @@ export default function HomeScreen() {
   const categories = useMemo(() => [ALL_CATEGORIES, ...Array.from(new Set(products.map((item) => item.category)))], [products]);
 
   const visible = useMemo(() => {
-    const filtered = category === ALL_CATEGORIES ? products : products.filter((item) => item.category === category);
+    const query = normalize(search);
+    const filtered = products.filter(
+      (item) =>
+        (category === ALL_CATEGORIES || item.category === category) && (!query || normalize(item.title).includes(query)),
+    );
     const sorted = [...filtered];
     if (sort === 'priceAsc') sorted.sort((a, b) => a.price - b.price);
     if (sort === 'priceDesc') sorted.sort((a, b) => b.price - a.price);
     if (sort === 'nameAsc') sorted.sort((a, b) => a.title.localeCompare(b.title, 'ru'));
     return sorted;
-  }, [products, sort, category]);
+  }, [products, sort, category, search]);
 
   const filtersActive = sort !== 'default' || category !== ALL_CATEGORIES;
 
@@ -67,24 +88,22 @@ export default function HomeScreen() {
   };
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top + 16 }]}>
+    <View style={[styles.container, { paddingTop: insets.top + 12 }]}>
       <StatusBar style="dark" />
       <View style={styles.header}>
         <CircleButton label="Фильтры и сортировка" dot={filtersActive} onPress={() => setFilterOpen(true)}>
           <FilterIcon />
         </CircleButton>
-        <View style={styles.headerCenter}>
-          <Text style={styles.title}>Продукты</Text>
-          {!loading && !error ? (
-            <Text style={styles.count}>
-              Показано: {visible.length} из {products.length}
-            </Text>
-          ) : null}
-        </View>
+        <Logo size={26} />
         <CircleButton label="Корзина" dark badge={totalCount} onPress={() => router.push('/cart')}>
           <CartIcon color={colors.white} />
         </CircleButton>
       </View>
+
+      <Text style={styles.greeting}>
+        Привет! <Text style={styles.greetingBold}>{getGreeting()}!</Text>
+      </Text>
+      <SearchField value={search} onChangeText={setSearch} />
 
       {loading ? (
         <View style={styles.center}>
@@ -101,6 +120,28 @@ export default function HomeScreen() {
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => <ProductCard product={item} />}
           ItemSeparatorComponent={() => <View style={{ height: 14 }} />}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          ListHeaderComponent={
+            <View>
+              <View style={styles.chips}>
+                <CategoryChips categories={categories} selected={category} onSelect={setCategory} />
+              </View>
+              <PromoBanner />
+              <View style={styles.sectionRow}>
+                <Text style={styles.sectionTitle}>Все продукты</Text>
+                <Text style={styles.sectionCount}>
+                  {visible.length} из {products.length}
+                </Text>
+              </View>
+            </View>
+          }
+          ListEmptyComponent={
+            <View style={styles.empty}>
+              <Text style={styles.emptyTitle}>Ничего не найдено</Text>
+              <Text style={styles.emptyText}>Попробуйте изменить запрос или категорию.</Text>
+            </View>
+          }
           ListFooterComponent={
             <Pressable accessibilityRole="button" hitSlop={10} onPress={() => router.replace('/login')} style={styles.logout}>
               <Text style={styles.logoutText}>Выйти из аккаунта</Text>
@@ -108,6 +149,7 @@ export default function HomeScreen() {
           }
           contentContainerStyle={{ paddingBottom: insets.bottom + 24, paddingHorizontal: 4 }}
           showsVerticalScrollIndicator={false}
+          style={styles.list}
         />
       )}
 
@@ -128,12 +170,19 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.white, paddingHorizontal: 20 },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 },
-  headerCenter: { flex: 1, alignItems: 'center' },
-  title: { ...fonts.bold, fontSize: 22, color: colors.title },
-  count: { ...fonts.regular, fontSize: 13, color: colors.gray, marginTop: 2 },
+  greeting: { ...fonts.regular, fontSize: 16, color: colors.grayText, marginBottom: 14 },
+  greetingBold: { ...fonts.bold, color: colors.title },
+  list: { marginTop: 8 },
+  chips: { marginHorizontal: -4, marginBottom: 14 },
+  sectionRow: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 22, marginBottom: 14 },
+  sectionTitle: { ...fonts.bold, fontSize: 20, color: colors.title },
+  sectionCount: { ...fonts.regular, fontSize: 14, color: colors.gray },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   error: { ...fonts.regular, fontSize: 15, color: colors.grayText, textAlign: 'center', marginBottom: 20 },
   retry: { alignSelf: 'stretch' },
+  empty: { alignItems: 'center', paddingVertical: 48 },
+  emptyTitle: { ...fonts.bold, fontSize: 18, color: colors.title },
+  emptyText: { ...fonts.regular, fontSize: 14, color: colors.grayText, marginTop: 6, textAlign: 'center' },
   logout: { alignItems: 'center', paddingVertical: 24 },
   logoutText: { ...fonts.regular, fontSize: 15, color: colors.primary },
 });
