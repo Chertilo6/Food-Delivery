@@ -1,19 +1,20 @@
-import React, { useState } from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import React from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Product } from '../api/products';
+import { useCart } from '../context/CartContext';
+import { formatTenge } from '../utils/format';
+import { PlusIcon } from './icons';
+import ProductImage from './ProductImage';
+import QuantityControl from './QuantityControl';
 import { colors, fonts } from '../theme';
 
-function formatTenge(value: number) {
-    return `${String(value).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} ₸`;
-}
-
 export default function ProductCard({ product }: { product: Product }) {
-    const [failed, setFailed] = useState(false);
-    const uri = failed ? product.thumbnail : product.thumbnail.replace(/\.png$/, '-small.png');
+    const { getQuantity, add, decrease } = useCart();
+    const quantity = getQuantity(product.id);
 
     return (
         <View style={styles.card}>
-            <Image source={{ uri }} style={styles.image} resizeMode="contain" onError={() => setFailed(true)} />
+            <ProductImage uri={product.thumbnail} />
             <View style={styles.info}>
                 <Text style={styles.title} numberOfLines={2}>
                     {product.title}
@@ -22,7 +23,21 @@ export default function ProductCard({ product }: { product: Product }) {
                     {product.category} · за 1 {product.unit}
                 </Text>
             </View>
-            <Text style={styles.price}>{formatTenge(product.price)}</Text>
+            <View style={styles.right}>
+                <Text style={styles.price}>{formatTenge(product.price)}</Text>
+                {quantity === 0 ? (
+                    <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel={`Добавить в корзину: ${product.title}`}
+                        onPress={() => add(product)}
+                        style={styles.addButton}
+                    >
+                        <PlusIcon />
+                    </Pressable>
+                ) : (
+                    <QuantityControl quantity={quantity} onIncrease={() => add(product)} onDecrease={() => decrease(product.id)} />
+                )}
+            </View>
         </View>
     );
 }
@@ -41,9 +56,10 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 4 },
         elevation: 3,
     },
-    image: { width: 72, height: 72, borderRadius: 12, backgroundColor: colors.input },
     info: { flex: 1 },
     title: { ...fonts.semiBold, fontSize: 16, color: colors.title },
     category: { ...fonts.regular, fontSize: 13, color: colors.gray, marginTop: 4 },
-    price: { ...fonts.bold, fontSize: 17, color: colors.primary },
+    right: { alignItems: 'flex-end', gap: 8 },
+    price: { ...fonts.bold, fontSize: 16, color: colors.primary },
+    addButton: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
 });
