@@ -7,6 +7,7 @@ import Checkbox from '../../components/Checkbox';
 import EyeIcon from '../../components/EyeIcon';
 import Field from '../../components/Field';
 import SocialButtons from '../../components/SocialButtons';
+import { validateEmail, validateRequired } from '../../utils/validation';
 import { colors, fonts } from '../../theme';
 
 export default function LoginScreen() {
@@ -14,6 +15,19 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [visible, setVisible] = useState(false);
   const [remember, setRemember] = useState(false);
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+
+  const submit = () => {
+    const found = {
+      email: validateEmail(email),
+      password: validateRequired(password, 'Введите пароль'),
+    };
+    if (found.email || found.password) {
+      setErrors(found);
+      return;
+    }
+    router.replace('/location');
+  };
 
   return (
     <AuthScreen title="Вход" subtitle="Войдите в свой аккаунт">
@@ -21,7 +35,11 @@ export default function LoginScreen() {
         label="Эл. почта"
         placeholder="example@gmail.com"
         value={email}
-        onChangeText={setEmail}
+        onChangeText={(text) => {
+          setEmail(text);
+          setErrors((current) => ({ ...current, email: undefined }));
+        }}
+        error={errors.email}
         keyboardType="email-address"
         autoCapitalize="none"
         autoCorrect={false}
@@ -30,7 +48,11 @@ export default function LoginScreen() {
         label="Пароль"
         placeholder="* * * * * * * * *"
         value={password}
-        onChangeText={setPassword}
+        onChangeText={(text) => {
+          setPassword(text);
+          setErrors((current) => ({ ...current, password: undefined }));
+        }}
+        error={errors.password}
         secureTextEntry={!visible}
         autoCapitalize="none"
         right={
@@ -47,7 +69,7 @@ export default function LoginScreen() {
         </Pressable>
       </View>
 
-      <Button title="Войти" onPress={() => router.replace('/location')} style={styles.button} />
+      <Button title="Войти" onPress={submit} style={styles.button} />
 
       <View style={styles.signUpRow}>
         <Text style={styles.gray}>Нет аккаунта? </Text>
