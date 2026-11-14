@@ -13,6 +13,7 @@ export const colors = {
   twitter: '#169CE8',
   apple: '#1B1F2F',
   keypad: '#D1D3D9',
+  error: '#E5484D',
 };
 
 export const fonts = {
