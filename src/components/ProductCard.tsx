@@ -1,29 +1,28 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { Product } from '../api/products';
 import { colors, fonts } from '../theme';
 
-function formatPrice(value: number) {
-    return `${String(value).replace(/\B(?=(\d{3})+(?!\d))/g, '\u00A0')}\u00A0₸`;
+function formatTenge(value: number) {
+    return `${String(value).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} ₸`;
 }
 
 export default function ProductCard({ product }: { product: Product }) {
+    const [failed, setFailed] = useState(false);
+    const uri = failed ? product.thumbnail : product.thumbnail.replace(/\.png$/, '-small.png');
+
     return (
         <View style={styles.card}>
-            {product.thumbnail ? (
-                <Image source={{ uri: product.thumbnail }} style={styles.image} />
-            ) : (
-                <View style={[styles.image, styles.emojiBox]}>
-                    <Text style={styles.emoji}>{product.emoji}</Text>
-                </View>
-            )}
+            <Image source={{ uri }} style={styles.image} resizeMode="contain" onError={() => setFailed(true)} />
             <View style={styles.info}>
                 <Text style={styles.title} numberOfLines={2}>
                     {product.title}
                 </Text>
-                <Text style={styles.category}>{product.category}</Text>
+                <Text style={styles.category} numberOfLines={1}>
+                    {product.category} · за 1 {product.unit}
+                </Text>
             </View>
-            <Text style={styles.price}>{formatPrice(product.price)}</Text>
+            <Text style={styles.price}>{formatTenge(product.price)}</Text>
         </View>
     );
 }
@@ -43,8 +42,6 @@ const styles = StyleSheet.create({
         elevation: 3,
     },
     image: { width: 72, height: 72, borderRadius: 12, backgroundColor: colors.input },
-    emojiBox: { alignItems: 'center', justifyContent: 'center' },
-    emoji: { fontSize: 36 },
     info: { flex: 1 },
     title: { ...fonts.semiBold, fontSize: 16, color: colors.title },
     category: { ...fonts.regular, fontSize: 13, color: colors.gray, marginTop: 4 },

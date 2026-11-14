@@ -44,7 +44,10 @@ export default function HomeScreen() {
     <View style={[styles.container, { paddingTop: insets.top + 16 }]}>
       <StatusBar style="dark" />
       <View style={styles.header}>
-        <Text style={styles.title}>Продукты</Text>
+        <View>
+          <Text style={styles.title}>Продукты</Text>
+          {!loading && !error ? <Text style={styles.count}>Всего: {products.length}</Text> : null}
+        </View>
         <Pressable accessibilityRole="button" hitSlop={10} onPress={() => router.replace('/login')}>
           <Text style={styles.logout}>Выйти</Text>
         </Pressable>
@@ -77,6 +80,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.white, paddingHorizontal: 20 },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 },
   title: { ...fonts.bold, fontSize: 26, color: colors.title },
+  count: { ...fonts.regular, fontSize: 14, color: colors.gray, marginTop: 2 },
   logout: { ...fonts.regular, fontSize: 15, color: colors.primary },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   error: { ...fonts.regular, fontSize: 15, color: colors.grayText, textAlign: 'center', marginBottom: 20 },
